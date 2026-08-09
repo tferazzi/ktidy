@@ -271,10 +271,7 @@ func kubeconfigFiles(dir string) ([]string, error) {
 		if e.IsDir() {
 			continue
 		}
-		name := e.Name()
-		if strings.HasSuffix(name, ".yaml") || strings.HasSuffix(name, ".yml") {
-			out = append(out, filepath.Join(dir, name))
-		}
+		out = append(out, filepath.Join(dir, e.Name()))
 	}
 	return out, nil
 }
