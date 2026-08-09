@@ -34,3 +34,13 @@ ktidy completion zsh > $(brew --prefix)/share/zsh/site-functions/_ktidy
 # bash
 ktidy completion bash > /etc/bash_completion.d/ktidy
 ```
+
+## Development
+
+```bash
+make build     # build ./bin/ktidy
+make test      # run tests
+make lint      # go vet
+make snapshot  # local release build via goreleaser (no tag required)
+```
+
