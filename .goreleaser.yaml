@@ -2,12 +2,29 @@ version: 2
 
 builds:
   - env: [CGO_ENABLED=0]
-    goos: [linux, darwin, windows]
+    goos: [linux, darwin]
     goarch: [amd64, arm64]
     ldflags: ['-s -w -X main.version={{.Version}}']
 
 archives:
   - format: tar.gz
-    format_overrides:
-      - goos: windows
-        format: zip
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - '^chore'
+      - '^ci'
+      - '^docs'
+      - '^test'
+  format: '[{{ .SHA }}](https://github.com/tferazzi/ktidy/commit/{{ .SHA }}): {{ .Message }}'
+  groups:
+    - title: 'New Features'
+      regexp: '^feat'
+      order: 0
+    - title: 'Bug Fixes'
+      regexp: '^fix'
+      order: 1
+    - title: 'Other'
+      order: 99
