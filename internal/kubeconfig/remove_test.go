@@ -6,7 +6,7 @@ import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
-func makeFullConfig(contexts map[string][2]string) *clientcmdapi.Config {
+func makeConfigFromMap(contexts map[string][2]string) *clientcmdapi.Config {
 	cfg := clientcmdapi.NewConfig()
 	for ctxName, refs := range contexts {
 		cfg.Contexts[ctxName] = &clientcmdapi.Context{Cluster: refs[0], AuthInfo: refs[1]}
@@ -60,7 +60,7 @@ func TestRemove(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cfg := makeFullConfig(tt.setup)
+			cfg := makeConfigFromMap(tt.setup)
 			cfg.CurrentContext = tt.current
 
 			missing := Remove(cfg, tt.remove)

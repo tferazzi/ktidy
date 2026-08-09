@@ -117,6 +117,9 @@ func runGroupList(cmd *cobra.Command, _ []string) error {
 
 func runGroupCreate(cmd *cobra.Command, args []string) error {
 	dir := filepath.Join(groupsDir, args[0])
+	if dryRunSkip(cmd, "would create group directory %s", dir) {
+		return nil
+	}
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return err
 	}
@@ -155,6 +158,9 @@ func runGroupAdd(cmd *cobra.Command, args []string) error {
 	}
 
 	dst := filepath.Join(groupDir, filepath.Base(src))
+	if dryRunSkip(cmd, "would %s %s to %s", map[bool]string{true: "move", false: "copy"}[groupAddMove], src, dst) {
+		return nil
+	}
 	if groupAddMove {
 		if err := os.Rename(src, dst); err != nil {
 			return err
@@ -221,6 +227,9 @@ func runGroupRemove(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	if dryRunSkip(cmd, "would remove group directory %s", dir) {
+		return nil
+	}
 	if err := os.RemoveAll(dir); err != nil {
 		return err
 	}
