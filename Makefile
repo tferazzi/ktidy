@@ -8,5 +8,12 @@ test:
 
 lint:
 	go vet ./...
+	golangci-lint run
 
-.PHONY: build test lint
+snapshot:
+	goreleaser release --snapshot --clean
+
+release:
+	goreleaser release --clean
+
+.PHONY: build test lint snapshot release
