@@ -10,7 +10,15 @@ import (
 var removeCmd = &cobra.Command{
 	Use:   "remove [flags] CONTEXT...",
 	Short: "Remove one or more contexts (and their cluster + user) from a kubeconfig",
-	Args:  cobra.MinimumNArgs(1),
+	Example: `  # Remove a single context from the active kubeconfig
+  ktidy remove old-cluster
+
+  # Remove multiple contexts at once
+  ktidy remove staging dev old-cluster
+
+  # Preview what would be removed without writing anything
+  ktidy remove --dry-run prod`,
+	Args: cobra.MinimumNArgs(1),
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		path, _ := cmd.Flags().GetString("kubeconfig")
 		path = resolveKubeconfig(path)
