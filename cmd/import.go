@@ -14,7 +14,18 @@ import (
 var importCmd = &cobra.Command{
 	Use:   "import [flags] CONFIG...",
 	Short: "Import kubeconfig(s) into the current kubeconfig",
-	RunE:  runImport,
+	Example: `  # Preview what would be imported without writing anything
+  ktidy import --dry-run new-cluster.yaml
+
+  # Import and save back to ~/.kube/config
+  ktidy import --save new-cluster.yaml
+
+  # Overwrite existing conflicting entries
+  ktidy import --save --force updated-cluster.yaml
+
+  # Import from stdin (e.g. from a cloud provider command)
+  aws eks update-kubeconfig --name my-cluster --dry-run | ktidy import --stdin --save`,
+	RunE: runImport,
 }
 
 var (

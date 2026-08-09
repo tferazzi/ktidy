@@ -13,8 +13,13 @@ import (
 var exportCmd = &cobra.Command{
 	Use:   "export [flags] CONTEXT...",
 	Short: "Extract one or more contexts into a minimal kubeconfig and print to stdout",
-	Args:  cobra.MinimumNArgs(1),
-	RunE:  runExport,
+	Example: `  # Export a single context to a file
+  ktidy export prod > prod.yaml
+
+  # Export two contexts from a specific file
+  ktidy export -k ~/other.yaml staging prod > two-contexts.yaml`,
+	Args: cobra.MinimumNArgs(1),
+	RunE: runExport,
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		path := resolveKubeconfig(exportKubeconfig)
 		cfg, err := kubeconfig.Load(path)

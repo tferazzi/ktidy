@@ -10,7 +10,15 @@ import (
 var renameCmd = &cobra.Command{
 	Use:   "rename <OLD> <NEW>",
 	Short: "Rename a context in a kubeconfig file",
-	Args:  cobra.ExactArgs(2),
+	Example: `  # Rename a verbose ARN context to something human-friendly
+  ktidy rename arn:aws:eks:eu-west-1:123456789:cluster/prod prod
+
+  # Rename in a specific file
+  ktidy rename -k ~/other.yaml old-name new-name
+
+  # Preview the rename without writing anything
+  ktidy rename --dry-run old-name new-name`,
+	Args: cobra.ExactArgs(2),
 	RunE:  runRename,
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		if len(args) != 0 {
