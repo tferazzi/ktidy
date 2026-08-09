@@ -6,18 +6,22 @@ import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
-// Remove deletes a context and its associated cluster and user from cfg.
-// Returns an error if the context does not exist.
-func Remove(cfg *clientcmdapi.Config, contextName string) error {
+// Split extracts the named context and its referenced cluster + user into a
+// minimal config. Returns an error if the context does not exist.
+func Split(cfg *clientcmdapi.Config, contextName string) (*clientcmdapi.Config, error) {
 	ctx, ok := cfg.Contexts[contextName]
 	if !ok {
-		return fmt.Errorf("context %q not found", contextName)
+		return nil, fmt.Errorf("context %q not found", contextName)
 	}
-	delete(cfg.Clusters, ctx.Cluster)
-	delete(cfg.AuthInfos, ctx.AuthInfo)
-	delete(cfg.Contexts, contextName)
-	if cfg.CurrentContext == contextName {
-		cfg.CurrentContext = ""
+
+	out := clientcmdapi.NewConfig()
+	out.Contexts[contextName] = ctx
+	out.CurrentContext = contextName
+	if cluster, ok := cfg.Clusters[ctx.Cluster]; ok {
+		out.Clusters[ctx.Cluster] = cluster
 	}
-	return nil
+	if user, ok := cfg.AuthInfos[ctx.AuthInfo]; ok {
+		out.AuthInfos[ctx.AuthInfo] = user
+	}
+	return out, nil
 }

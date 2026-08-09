@@ -5,7 +5,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tferazzi/ktidy/internal/kubeconfig"
-	"k8s.io/client-go/tools/clientcmd"
 )
 
 var removeCmd = &cobra.Command{
@@ -47,15 +46,9 @@ func runRemove(cmd *cobra.Command, args []string) error {
 		fmt.Fprintf(cmd.ErrOrStderr(), "warning: context %q not found\n", name)
 	}
 
+	if dryRunSkip(cmd, "would write updated config to %s", path) {
+		return nil
+	}
 	return kubeconfig.Write(cfg, path)
 }
 
-func resolveKubeconfig(flag string) string {
-	if flag != "" {
-		return flag
-	}
-	if paths := clientcmd.NewDefaultClientConfigLoadingRules().GetLoadingPrecedence(); len(paths) > 0 {
-		return paths[0]
-	}
-	return clientcmd.RecommendedHomeFile
-}

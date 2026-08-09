@@ -99,6 +99,9 @@ func runImport(cmd *cobra.Command, args []string) error {
 	}
 
 	if importSave {
+		if dryRunSkip(cmd, "would write merged config to %s", destPath) {
+			return nil
+		}
 		return kubeconfig.Write(merged, destPath)
 	}
 	_, err = os.Stdout.Write(out)

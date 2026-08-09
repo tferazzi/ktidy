@@ -19,7 +19,7 @@ var splitCmd = &cobra.Command{
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		}
 		path, _ := cmd.Flags().GetString("kubeconfig")
-		cfg, err := loadSplitConfig(path)
+		cfg, err := kubeconfig.Load(resolveKubeconfig(path))
 		if err != nil {
 			return nil, cobra.ShellCompDirectiveError
 		}
@@ -43,27 +43,15 @@ func init() {
 func runSplit(cmd *cobra.Command, args []string) error {
 	contextName := args[0]
 	path, _ := cmd.Flags().GetString("kubeconfig")
+	resolvedPath := resolveKubeconfig(path)
 
-	src, err := loadSplitConfig(path)
+	src, err := kubeconfig.Load(resolvedPath)
 	if err != nil {
 		return err
 	}
 
-	ctx, ok := src.Contexts[contextName]
-	if !ok {
-		return fmt.Errorf("context %q not found", contextName)
-	}
-
-	out := clientcmdapi.NewConfig()
-	out.Contexts[contextName] = ctx
-	out.CurrentContext = contextName
-	if cluster, ok := src.Clusters[ctx.Cluster]; ok {
-		out.Clusters[ctx.Cluster] = cluster
-	}
-	if user, ok := src.AuthInfos[ctx.AuthInfo]; ok {
-		out.AuthInfos[ctx.AuthInfo] = user
-	}
-	if err := clientcmdapi.FlattenConfig(out); err != nil {
+	out, err := buildSplitOutput(src, contextName)
+	if err != nil {
 		return err
 	}
 
@@ -76,26 +64,34 @@ func runSplit(cmd *cobra.Command, args []string) error {
 	}
 
 	if splitRemove {
-		if err := kubeconfig.Remove(src, contextName); err != nil {
-			return err
+		missing := kubeconfig.Remove(src, []string{contextName})
+		if len(missing) > 0 {
+			return fmt.Errorf("context %q not found", contextName)
 		}
-		resolvedPath := resolvedKubeconfigPath(path)
+		if dryRunSkip(cmd, "would remove context %q from %s", contextName, resolvedPath) {
+			return nil
+		}
 		return kubeconfig.Write(src, resolvedPath)
 	}
 	return nil
 }
 
-func loadSplitConfig(flagPath string) (*clientcmdapi.Config, error) {
-	return kubeconfig.Load(resolvedKubeconfigPath(flagPath))
-}
-
-func resolvedKubeconfigPath(flagPath string) string {
-	if flagPath != "" {
-		return flagPath
+func buildSplitOutput(src *clientcmdapi.Config, contextName string) (*clientcmdapi.Config, error) {
+	ctx, ok := src.Contexts[contextName]
+	if !ok {
+		return nil, fmt.Errorf("context %q not found", contextName)
 	}
-	if env := os.Getenv("KUBECONFIG"); env != "" {
-		return env
+	out := clientcmdapi.NewConfig()
+	out.Contexts[contextName] = ctx
+	out.CurrentContext = contextName
+	if cluster, ok := src.Clusters[ctx.Cluster]; ok {
+		out.Clusters[ctx.Cluster] = cluster
 	}
-	home, _ := os.UserHomeDir()
-	return home + "/.kube/config"
+	if user, ok := src.AuthInfos[ctx.AuthInfo]; ok {
+		out.AuthInfos[ctx.AuthInfo] = user
+	}
+	if err := clientcmdapi.FlattenConfig(out); err != nil {
+		return nil, err
+	}
+	return out, nil
 }
