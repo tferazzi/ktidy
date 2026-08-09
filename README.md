@@ -34,3 +34,20 @@ ktidy completion zsh > $(brew --prefix)/share/zsh/site-functions/_ktidy
 # bash
 ktidy completion bash > /etc/bash_completion.d/ktidy
 ```
+
+## Development
+
+```bash
+make build     # build ./bin/ktidy
+make test      # run tests
+make lint      # go vet
+make snapshot  # local release build via goreleaser (no tag required)
+```
+
+## Releasing
+
+1. Tag the commit: `git tag v0.x.y && git push --tags`
+2. CI picks up the tag and runs `make release` via GoReleaser
+3. Binaries for `linux/darwin/windows` and `amd64/arm64` are published to the GitHub Release automatically
+
+To preview the release build locally without publishing: `make snapshot`
