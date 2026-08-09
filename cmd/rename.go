@@ -51,5 +51,8 @@ func runRename(cmd *cobra.Command, args []string) error {
 		fmt.Fprintf(cmd.ErrOrStderr(), "warning: active context renamed to %q\n", args[1])
 	}
 
+	if dryRunSkip(cmd, "would rename context %q to %q in %s", args[0], args[1], path) {
+		return nil
+	}
 	return kubeconfig.Write(cfg, path)
 }
