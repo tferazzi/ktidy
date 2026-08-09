@@ -44,3 +44,10 @@ make lint      # go vet
 make snapshot  # local release build via goreleaser (no tag required)
 ```
 
+## Releasing
+
+1. Tag the commit: `git tag v0.x.y && git push --tags`
+2. CI picks up the tag and runs `make release` via GoReleaser
+3. Binaries for `linux/darwin/windows` and `amd64/arm64` are published to the GitHub Release automatically
+
+To preview the release build locally without publishing: `make snapshot`
