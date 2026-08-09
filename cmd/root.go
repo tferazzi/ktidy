@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 )
 
@@ -22,12 +20,21 @@ func init() {
 	rootCmd.PersistentFlags().BoolVar(&dryRun, "dry-run", false, "print what would happen without writing any files")
 }
 
-// dryRunSkip prints a dry-run message and returns true when dry-run is active.
-// Usage: if dryRunSkip(cmd, "would write %s", path) { return nil }
+// dryRunSkip prints a colored dry-run message and returns true when dry-run is active.
 func dryRunSkip(cmd *cobra.Command, format string, args ...any) bool {
 	if !dryRun {
 		return false
 	}
-	fmt.Fprintf(cmd.ErrOrStderr(), "[dry-run] "+format+"\n", args...)
+	colorDryRun.Fprintf(cmd.ErrOrStderr(), "[dry-run] "+format+"\n", args...)
 	return true
+}
+
+// warnf prints a yellow warning line to stderr.
+func warnf(cmd *cobra.Command, format string, args ...any) {
+	colorWarning.Fprintf(cmd.ErrOrStderr(), "warning: "+format+"\n", args...)
+}
+
+// successf prints a green confirmation line to stdout.
+func successf(cmd *cobra.Command, format string, args ...any) {
+	colorSuccess.Fprintf(cmd.OutOrStdout(), format+"\n", args...)
 }

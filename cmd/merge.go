@@ -13,8 +13,13 @@ import (
 var mergeCmd = &cobra.Command{
 	Use:   "merge [flags] CONFIG...",
 	Short: "Merge multiple kubeconfig files and print to stdout",
-	Args:  cobra.MinimumNArgs(1),
-	RunE:  runMerge,
+	Example: `  # Merge two files and write the result to ~/.kube/config
+  ktidy merge work.yaml personal.yaml > ~/.kube/config
+
+  # Merge while keeping credential files as external references
+  ktidy merge -p cluster-a.yaml cluster-b.yaml > merged.yaml`,
+	Args: cobra.MinimumNArgs(1),
+	RunE: runMerge,
 }
 
 var mergePreserveStructure bool
@@ -53,12 +58,12 @@ func runMerge(cmd *cobra.Command, args []string) error {
 
 func printConflicts(cmd *cobra.Command, c kubeconfig.Conflicts) {
 	for _, name := range c.Contexts {
-		fmt.Fprintf(cmd.ErrOrStderr(), "warning: duplicate context %q — last-write wins\n", name)
+		warnf(cmd, "duplicate context %q — last-write wins", name)
 	}
 	for _, name := range c.Clusters {
-		fmt.Fprintf(cmd.ErrOrStderr(), "warning: duplicate cluster %q — last-write wins\n", name)
+		warnf(cmd, "duplicate cluster %q — last-write wins", name)
 	}
 	for _, name := range c.Users {
-		fmt.Fprintf(cmd.ErrOrStderr(), "warning: duplicate user %q — last-write wins\n", name)
+		warnf(cmd, "duplicate user %q — last-write wins", name)
 	}
 }

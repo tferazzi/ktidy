@@ -10,6 +10,14 @@ import (
 var removeCmd = &cobra.Command{
 	Use:   "remove [flags] CONTEXT...",
 	Short: "Remove one or more contexts (and their cluster + user) from a kubeconfig",
+	Example: `  # Remove a single context from the active kubeconfig
+  ktidy remove old-cluster
+
+  # Remove multiple contexts at once
+  ktidy remove staging dev old-cluster
+
+  # Preview what would be removed without writing anything
+  ktidy remove --dry-run prod`,
 	Args:  cobra.MinimumNArgs(1),
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		path, _ := cmd.Flags().GetString("kubeconfig")
@@ -43,7 +51,7 @@ func runRemove(cmd *cobra.Command, args []string) error {
 
 	missing := kubeconfig.Remove(cfg, args)
 	for _, name := range missing {
-		fmt.Fprintf(cmd.ErrOrStderr(), "warning: context %q not found\n", name)
+		warnf(cmd, "context %q not found", name)
 	}
 
 	if dryRunSkip(cmd, "would write updated config to %s", path) {
