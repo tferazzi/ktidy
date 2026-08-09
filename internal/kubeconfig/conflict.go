@@ -2,6 +2,29 @@ package kubeconfig
 
 import clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
+// DetectAgainst returns names in incoming that already exist in base.
+func DetectAgainst(base *clientcmdapi.Config, incoming []*clientcmdapi.Config) Conflicts {
+	var c Conflicts
+	for _, cfg := range incoming {
+		for name := range cfg.Contexts {
+			if _, exists := base.Contexts[name]; exists {
+				c.Contexts = append(c.Contexts, name)
+			}
+		}
+		for name := range cfg.Clusters {
+			if _, exists := base.Clusters[name]; exists {
+				c.Clusters = append(c.Clusters, name)
+			}
+		}
+		for name := range cfg.AuthInfos {
+			if _, exists := base.AuthInfos[name]; exists {
+				c.Users = append(c.Users, name)
+			}
+		}
+	}
+	return c
+}
+
 // Conflicts holds the names that appear in more than one config.
 type Conflicts struct {
 	Contexts []string
