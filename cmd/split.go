@@ -13,7 +13,15 @@ import (
 var splitCmd = &cobra.Command{
 	Use:   "split [flags] CONTEXT",
 	Short: "Export a context to stdout; with --remove also delete it from the source file",
-	Args:  cobra.ExactArgs(1),
+	Example: `  # Export a context (identical to ktidy export for a single context)
+  ktidy split prod > prod.yaml
+
+  # Export and remove the context from the source file
+  ktidy split --remove prod > prod.yaml
+
+  # Preview what --remove would delete without touching the file
+  ktidy split --remove --dry-run prod`,
+	Args: cobra.ExactArgs(1),
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		if len(args) != 0 {
 			return nil, cobra.ShellCompDirectiveNoFileComp
