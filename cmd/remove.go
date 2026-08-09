@@ -1,0 +1,61 @@
+package cmd
+
+import (
+	"fmt"
+
+	"github.com/spf13/cobra"
+	"github.com/tferazzi/ktidy/internal/kubeconfig"
+	"k8s.io/client-go/tools/clientcmd"
+)
+
+var removeCmd = &cobra.Command{
+	Use:   "remove [flags] CONTEXT...",
+	Short: "Remove one or more contexts (and their cluster + user) from a kubeconfig",
+	Args:  cobra.MinimumNArgs(1),
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		path, _ := cmd.Flags().GetString("kubeconfig")
+		path = resolveKubeconfig(path)
+		cfg, err := kubeconfig.Load(path)
+		if err != nil {
+			return nil, cobra.ShellCompDirectiveError
+		}
+		names := make([]string, 0, len(cfg.Contexts))
+		for name := range cfg.Contexts {
+			names = append(names, name)
+		}
+		return names, cobra.ShellCompDirectiveNoFileComp
+	},
+	RunE: runRemove,
+}
+
+var removeKubeconfig string
+
+func init() {
+	removeCmd.Flags().StringVarP(&removeKubeconfig, "kubeconfig", "k", "", "path to kubeconfig (default: $KUBECONFIG or ~/.kube/config)")
+	rootCmd.AddCommand(removeCmd)
+}
+
+func runRemove(cmd *cobra.Command, args []string) error {
+	path := resolveKubeconfig(removeKubeconfig)
+	cfg, err := kubeconfig.Load(path)
+	if err != nil {
+		return fmt.Errorf("loading %s: %w", path, err)
+	}
+
+	missing := kubeconfig.Remove(cfg, args)
+	for _, name := range missing {
+		fmt.Fprintf(cmd.ErrOrStderr(), "warning: context %q not found\n", name)
+	}
+
+	return kubeconfig.Write(cfg, path)
+}
+
+func resolveKubeconfig(flag string) string {
+	if flag != "" {
+		return flag
+	}
+	if paths := clientcmd.NewDefaultClientConfigLoadingRules().GetLoadingPrecedence(); len(paths) > 0 {
+		return paths[0]
+	}
+	return clientcmd.RecommendedHomeFile
+}
