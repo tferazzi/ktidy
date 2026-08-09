@@ -16,20 +16,25 @@ var groupsDir string
 var groupCmd = &cobra.Command{
 	Use:   "group",
 	Short: "Manage kubeconfig groups",
+	Example: `  # One-time shell setup — add to ~/.zshrc or ~/.bashrc
+  eval "$(ktidy group activate)"`,
 }
 
 var groupListCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List groups and their contexts",
-	Args:  cobra.NoArgs,
-	RunE:  runGroupList,
+	Use:     "list",
+	Short:   "List groups and their contexts",
+	Example: `  ktidy group list`,
+	Args:    cobra.NoArgs,
+	RunE:    runGroupList,
 }
 
 var groupCreateCmd = &cobra.Command{
 	Use:   "create <name>",
 	Short: "Create a new group directory",
-	Args:  cobra.ExactArgs(1),
-	RunE:  runGroupCreate,
+	Example: `  ktidy group create aws
+  ktidy group create gcp`,
+	Args:              cobra.ExactArgs(1),
+	RunE:              runGroupCreate,
 	ValidArgsFunction: cobra.NoFileCompletions,
 }
 
@@ -38,8 +43,13 @@ var groupAddMove bool
 var groupAddCmd = &cobra.Command{
 	Use:   "add <group> <file>",
 	Short: "Add a kubeconfig file to a group",
-	Args:  cobra.ExactArgs(2),
-	RunE:  runGroupAdd,
+	Example: `  # Copy a kubeconfig into the aws group
+  ktidy group add aws ~/Downloads/eks-prod.yaml
+
+  # Move instead of copy
+  ktidy group add --move aws ~/Downloads/eks-staging.yaml`,
+	Args: cobra.ExactArgs(2),
+	RunE: runGroupAdd,
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		if len(args) == 0 {
 			return groupNames(), cobra.ShellCompDirectiveNoFileComp
@@ -51,7 +61,12 @@ var groupAddCmd = &cobra.Command{
 var groupActivateCmd = &cobra.Command{
 	Use:   "activate [<group>...]",
 	Short: "Print export KUBECONFIG=... for eval",
-	RunE:  runGroupActivate,
+	Example: `  # Activate all groups (add to ~/.zshrc)
+  eval "$(ktidy group activate)"
+
+  # Activate only the aws and gcp groups
+  eval "$(ktidy group activate aws gcp)"`,
+	RunE: runGroupActivate,
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return groupNames(), cobra.ShellCompDirectiveNoFileComp
 	},
@@ -62,8 +77,13 @@ var groupRemoveForce bool
 var groupRemoveCmd = &cobra.Command{
 	Use:   "remove <group>",
 	Short: "Remove a group directory",
-	Args:  cobra.ExactArgs(1),
-	RunE:  runGroupRemove,
+	Example: `  # Remove with confirmation prompt
+  ktidy group remove old-group
+
+  # Remove without prompting
+  ktidy group remove --force old-group`,
+	Args: cobra.ExactArgs(1),
+	RunE: runGroupRemove,
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return groupNames(), cobra.ShellCompDirectiveNoFileComp
 	},

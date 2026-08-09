@@ -13,8 +13,13 @@ import (
 var mergeCmd = &cobra.Command{
 	Use:   "merge [flags] CONFIG...",
 	Short: "Merge multiple kubeconfig files and print to stdout",
-	Args:  cobra.MinimumNArgs(1),
-	RunE:  runMerge,
+	Example: `  # Merge two files and write the result to ~/.kube/config
+  ktidy merge work.yaml personal.yaml > ~/.kube/config
+
+  # Merge while keeping credential files as external references
+  ktidy merge -p cluster-a.yaml cluster-b.yaml > merged.yaml`,
+	Args: cobra.MinimumNArgs(1),
+	RunE: runMerge,
 }
 
 var mergePreserveStructure bool
