@@ -143,7 +143,7 @@ func runGroupCreate(cmd *cobra.Command, args []string) error {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return err
 	}
-	fmt.Fprintf(cmd.OutOrStdout(), "created group %q\n", args[0])
+	successf(cmd, "created group %q", args[0])
 	return nil
 }
 
@@ -172,7 +172,7 @@ func runGroupAdd(cmd *cobra.Command, args []string) error {
 		}
 		for name := range incomingCfg.Contexts {
 			if _, ok := existingCfg.Contexts[name]; ok {
-				fmt.Fprintf(cmd.ErrOrStderr(), "warning: context %q already exists in %s\n", name, f)
+				warnf(cmd, "context %q already exists in %s", name, f)
 			}
 		}
 	}
@@ -190,7 +190,7 @@ func runGroupAdd(cmd *cobra.Command, args []string) error {
 			return err
 		}
 	}
-	fmt.Fprintf(cmd.OutOrStdout(), "added %s to group %q\n", filepath.Base(src), group)
+	successf(cmd, "added %s to group %q", filepath.Base(src), group)
 	return nil
 }
 
@@ -253,7 +253,7 @@ func runGroupRemove(cmd *cobra.Command, args []string) error {
 	if err := os.RemoveAll(dir); err != nil {
 		return err
 	}
-	fmt.Fprintf(cmd.OutOrStdout(), "removed group %q\n", group)
+	successf(cmd, "removed group %q", group)
 	return nil
 }
 

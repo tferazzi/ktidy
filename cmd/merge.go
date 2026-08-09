@@ -58,12 +58,12 @@ func runMerge(cmd *cobra.Command, args []string) error {
 
 func printConflicts(cmd *cobra.Command, c kubeconfig.Conflicts) {
 	for _, name := range c.Contexts {
-		fmt.Fprintf(cmd.ErrOrStderr(), "warning: duplicate context %q — last-write wins\n", name)
+		warnf(cmd, "duplicate context %q — last-write wins", name)
 	}
 	for _, name := range c.Clusters {
-		fmt.Fprintf(cmd.ErrOrStderr(), "warning: duplicate cluster %q — last-write wins\n", name)
+		warnf(cmd, "duplicate cluster %q — last-write wins", name)
 	}
 	for _, name := range c.Users {
-		fmt.Fprintf(cmd.ErrOrStderr(), "warning: duplicate user %q — last-write wins\n", name)
+		warnf(cmd, "duplicate user %q — last-write wins", name)
 	}
 }

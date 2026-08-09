@@ -51,7 +51,7 @@ func runRemove(cmd *cobra.Command, args []string) error {
 
 	missing := kubeconfig.Remove(cfg, args)
 	for _, name := range missing {
-		fmt.Fprintf(cmd.ErrOrStderr(), "warning: context %q not found\n", name)
+		warnf(cmd, "context %q not found", name)
 	}
 
 	if dryRunSkip(cmd, "would write updated config to %s", path) {

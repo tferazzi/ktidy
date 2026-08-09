@@ -86,13 +86,13 @@ func runImport(cmd *cobra.Command, args []string) error {
 	conflicts := kubeconfig.DetectAgainst(base, incoming)
 	if conflicts.Any() && !importForce {
 		for _, name := range conflicts.Contexts {
-			fmt.Fprintf(cmd.ErrOrStderr(), "skipping context %q: already exists (use --force to overwrite)\n", name)
+			warnf(cmd, "skipping context %q: already exists (use --force to overwrite)", name)
 		}
 		for _, name := range conflicts.Clusters {
-			fmt.Fprintf(cmd.ErrOrStderr(), "skipping cluster %q: already exists (use --force to overwrite)\n", name)
+			warnf(cmd, "skipping cluster %q: already exists (use --force to overwrite)", name)
 		}
 		for _, name := range conflicts.Users {
-			fmt.Fprintf(cmd.ErrOrStderr(), "skipping user %q: already exists (use --force to overwrite)\n", name)
+			warnf(cmd, "skipping user %q: already exists (use --force to overwrite)", name)
 		}
 		// filter out conflicting entries from incoming before merging
 		incoming = filterConflicts(incoming, conflicts)

@@ -56,7 +56,7 @@ func runRename(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	if warned {
-		fmt.Fprintf(cmd.ErrOrStderr(), "warning: active context renamed to %q\n", args[1])
+		warnf(cmd, "active context renamed to %q", args[1])
 	}
 
 	if dryRunSkip(cmd, "would rename context %q to %q in %s", args[0], args[1], path) {
