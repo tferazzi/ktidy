@@ -56,6 +56,23 @@ func TestMerge_lastWriteWins(t *testing.T) {
 	}
 }
 
+func TestDetectAgainst(t *testing.T) {
+	base := makeConfig([]string{"ctx-a"}, []string{"cluster-a"}, []string{"user-a"})
+	incoming := makeConfig([]string{"ctx-a", "ctx-b"}, []string{"cluster-b"}, []string{"user-a"})
+
+	c := DetectAgainst(base, []*clientcmdapi.Config{incoming})
+
+	if len(c.Contexts) != 1 || c.Contexts[0] != "ctx-a" {
+		t.Errorf("contexts: got %v, want [ctx-a]", c.Contexts)
+	}
+	if len(c.Clusters) != 0 {
+		t.Errorf("clusters: got %v, want []", c.Clusters)
+	}
+	if len(c.Users) != 1 || c.Users[0] != "user-a" {
+		t.Errorf("users: got %v, want [user-a]", c.Users)
+	}
+}
+
 func TestMerge_noConflict(t *testing.T) {
 	a := makeConfig([]string{"ctx-a"}, []string{"cluster-a"}, []string{"user-a"})
 	b := makeConfig([]string{"ctx-b"}, []string{"cluster-b"}, []string{"user-b"})
