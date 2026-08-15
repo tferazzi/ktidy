@@ -4,7 +4,17 @@ A fast, safe kubeconfig manager. Merge, split, import, export, rename and group 
 
 ## Install
 
-tbd.
+```sh
+curl -fsSL https://raw.githubusercontent.com/tferazzi/ktidy/main/install.sh | sh
+```
+
+Downloads the latest release binary, verifies the SHA256 checksum and installs to `/usr/local/bin` (falls back to `~/.local/bin` if not writable).
+
+### Go install (requires Go 1.26+)
+
+```sh
+go install github.com/tferazzi/ktidy@latest
+```
 
 ## Commands
 
